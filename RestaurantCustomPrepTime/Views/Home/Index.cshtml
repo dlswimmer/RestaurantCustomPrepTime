@@ -1,0 +1,94 @@
+﻿@{
+    ViewBag.Title = "Custom Prep Times";
+}
+
+<h2>Custom Prep Times By Day/Time</h2>
+<div>
+    <a href="javascript:void(0);" class="float-right" onclick="addNew();">Add New</a>
+</div>
+<table>
+    <thead>
+        <tr>
+            <th>Days</th>
+            <th>Times</th>
+            <th>Prep Time</th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody data-bind="foreach: prepTimes">
+        <tr>
+            <td data-bind="text: days"></td>
+            <td data-bind="text: times"></td>
+            <td data-bind="text: PrepTime"></td>
+            <td>
+                <a href="javascript:void(0);" data-bind="click: editSelf">edit</a>
+            </td>
+            <td>
+                <a href="javascript:void(0);" data-bind="click: deleteSelf">delete</a>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<div id="addEditDialog" data-bind="with: selectedPrepTime" title="Add New Custom Prep Time">
+    <fieldset>
+        <ol class="floating">
+            <li>
+                <input id="chkMonday" type="checkbox" data-bind="checked: OnMonday" value="Mon" />
+                <label for="chkMonday">Mon</label>
+            </li>
+            <li>
+                <input id="chkTuesday" type="checkbox" data-bind="checked: OnTuesday" value="Tue" />
+                <label for="chkTuesday">Tue</label>
+            </li>
+            <li>
+                <input id="chkWednesday" type="checkbox" data-bind="checked: OnWednesday" value="Wed" />
+                <label for="chkWednesday">Wed</label>
+            </li>
+            <li>
+                <input id="chkThursday" type="checkbox" data-bind="checked: OnThursday" value="Thu" />
+                <label for="chkThursday">Thu</label>
+            </li>
+            <li>
+                <input id="chkFriday" type="checkbox" data-bind="checked: OnFriday" value="Fri" />
+                <label for="chkFriday">Fri</label>
+            </li>
+            <li>
+                <input id="chkSaturday" type="checkbox" data-bind="checked: OnSaturday" value="Sat" />
+                <label for="chkSaturday">Sat</label>
+            </li>
+            <li>
+                <input id="chkSunday" type="checkbox" data-bind="checked: OnSunday" value="Sun" />
+                <label for="chkSunday">Sun</label>
+            </li>
+        </ol>
+        <section id="addEditFields" class="center clearfix">
+            <div>
+                <label for="txtFromTime">From: </label>
+                <input id="txtFromTime" type="text" data-bind="value: TimeFrom" />
+                <label for="txtToTime">To: </label>
+                <input id="txtToTime" type="text" data-bind="value: TimeTo" />
+            </div>
+            <div>
+                <label for="txtPrepTime">Prep Time: </label>
+                <input id="txtPrepTime" type="text" data-bind="value: PrepTime" />
+            </div>
+        </section>
+    </fieldset>
+    <div class="float-right">
+        <button type="button" data-bind="click: save">Save</button>
+        <button type="button" data-bind="click: closeForm">Cancel</button>
+    </div>
+</div>
+
+@section scripts
+{
+    <script>
+        var rootHomeGetAllUri = '@Url.Action("GetPrepTimes")';
+        var rootHomeAddUri = '@Url.Action("Add")';
+        var rootHomeEditUri = '@Url.Action("Edit")';
+        var rootHomeDeleteUri = '@Url.Action("Delete")';
+    </script>
+    <script src="../../Scripts/Home/HomeIndex.js"></script>
+}
