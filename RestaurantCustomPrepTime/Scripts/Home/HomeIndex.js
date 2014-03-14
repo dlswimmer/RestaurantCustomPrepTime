@@ -1,20 +1,21 @@
 ﻿
-    $(document).ready(function () {
-        ko.applyBindings(viewModel);
-        viewModel.load();
+$(document).ready(function () {
+    ko.validation.configure({ messagesOnModified: false, insertMessages: true });
+    ko.validation.init();
+    ko.applyBindings(viewModel);
+    viewModel().load();
 
-        $('#addEditDialog').dialog({
-            autoOpen: false,
-            width: 700,
-            modal: true,
-            resizable: false
-        });
+    $('#addEditDialog').dialog({
+        autoOpen: false,
+        width: 700,
+        modal: true,
+        resizable: false
     });
+});
 
-var viewModel = {
-    isOpen: ko.observable(false),
+var viewModel = ko.validatedObservable({
     prepTimes: ko.observableArray([]),
-    selectedPrepTime: ko.observable(),
+    selectedPrepTime: ko.validatedObservable(),
     load: function () {
         var self = this;
         $.ajax({
@@ -31,8 +32,12 @@ var viewModel = {
                 alert(err.status + " : " + err.statusText);
             }
         });
+    },
+    addNew: function () {
+        var item = ko.validatedObservable(new PrepTimes());
+        item().editSelf();
     }
-};
+});
 
 function PrepTimes(data) {
     var self = this;
@@ -44,11 +49,34 @@ function PrepTimes(data) {
     self.OnFriday = ko.observable(data == null ? false : data.OnFriday);
     self.OnSaturday = ko.observable(data == null ? false : data.OnSaturday);
     self.OnSunday = ko.observable(data == null ? false : data.OnSunday);
-    self.TimeFrom = ko.observable(data == null ? "12:00 PM" : data.TimeFrom);
-    self.TimeTo = ko.observable(data == null ? "12:00 PM" : data.TimeTo);
-    self.PrepTime = ko.observable(data == null ? 0 : data.PrepTime);
+    self.TimeFrom = ko.observable(data == null ? "" : data.TimeFrom).extend({
+        required: {
+            message: "*",
+            params: true
+        },
+        pattern: {
+            message: "Please enter in the following format: 12:00 PM",
+            params: "^(?:(?:([01]?\\d|2[0-3]):)?([0-5]?\\d) )?(AM|PM)$"
+        }
+    });
+    self.TimeTo = ko.observable(data == null ? "" : data.TimeTo).extend({
+        required: {
+            message: "*",
+            params: true
+        },
+        pattern: {
+            message: "Please enter in the following format: 12:00 PM",
+            params: "^(?:(?:([01]?\\d|2[0-3]):)?([0-5]?\\d) )?(AM|PM)$"
+        }
+    });
+    self.PrepTime = ko.observable(data == null ? "" : data.PrepTime).extend({
+        required: {
+            message: "*",
+            params: true
+        }, min: 1
+    });
     self.isNew = ko.computed(function() {
-        return self.Id == null || self.Id == 0;
+        return self.Id() == null || self.Id() == 0;
     });
     self.times = ko.computed(function () {
         return self.TimeFrom() + " - " + self.TimeTo();
@@ -99,7 +127,7 @@ function PrepTimes(data) {
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function () {
-                viewModel.prepTimes.remove(self);
+                viewModel().prepTimes.remove(self);
             },
             error: function (err) {
                 alert(err.status + " : " + err.statusText);
@@ -107,12 +135,15 @@ function PrepTimes(data) {
         });
     };
     self.editSelf = function () {
-        var copy = new PrepTimes();
-        copy.copyValues(self);
-        viewModel.selectedPrepTime(copy);
+        var copy = ko.validatedObservable(new PrepTimes());
+        copy().copyValues(self);
+        viewModel().selectedPrepTime(copy);
         $("#addEditDialog").dialog('open');
     };
     self.save = function () {
+        if (!self.isValid()) {
+            return;
+        }
         var item = ko.toJSON(self);
         if (self.isNew()) {
             $.ajax({
@@ -123,7 +154,7 @@ function PrepTimes(data) {
                 data: item,
                 success: function (jsonData) {
                     var result = new PrepTimes(jsonData);
-                    viewModel.prepTimes.push(result);
+                    viewModel().prepTimes.push(result);
                     $("#addEditDialog").dialog('close');
                 },
                 error: function (err) {
@@ -148,9 +179,6 @@ function PrepTimes(data) {
             });
         }
     };
-    self.addSelf = function () {
-        viewModel.prepTimes.add(self);
-    };
     self.copyValues = function (copyFrom) {
         self.copyFrom = copyFrom;
         self.Id(copyFrom.Id());
@@ -168,9 +196,4 @@ function PrepTimes(data) {
     self.closeForm = function () {
         $("#addEditDialog").dialog('close');
     };
-}
-
-function addNew() {
-    viewModel.selectedPrepTime(new PrepTimes());
-    $("#addEditDialog").dialog('open');
 }

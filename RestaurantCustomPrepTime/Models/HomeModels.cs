@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
 using System.Web.UI.WebControls;
@@ -36,8 +37,11 @@ namespace RestaurantCustomPrepTime.Models
             OnSunday = item.PrepDays.Any(x => x.Day == DaysOfWeek.Sunday);
         }
         public int Id { get; set; }
+        [Required]
         public string TimeFrom { get; set; }
+        [Required]
         public string TimeTo { get; set; }
+        [Required]
         public int PrepTime { get; set; }
 
         public bool OnMonday { get; set; }

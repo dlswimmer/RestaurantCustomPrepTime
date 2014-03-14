@@ -43,7 +43,7 @@ namespace RestaurantCustomPrepTime.Business.Processes
                 {
                     throw new EntityNotFoundException("CustomPrepTime", id);
                 }
-                foreach (var day in entity.PrepDays)
+                foreach (var day in entity.PrepDays.ToList())
                 {
                     context.Delete(day);
                 }

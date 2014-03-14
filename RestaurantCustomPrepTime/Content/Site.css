@@ -125,3 +125,7 @@ ol.floating li {
 input[type=text] {
     width: 100px;
 }
+
+.validationMessage {
+    color: red;
+}
