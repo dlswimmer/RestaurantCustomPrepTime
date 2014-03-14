@@ -66,13 +66,14 @@
         <section id="addEditFields" class="center clearfix">
             <div>
                 <label for="txtFromTime">From: </label>
-                <input id="txtFromTime" type="text" data-bind="value: TimeFrom, valueUpdate: 'afterkeydown'" />
+                <input id="txtFromTime" type="text" data-bind="value: TimeFrom, valueUpdate: 'afterkeydown', watermark: '12:00 PM'" />
                 <label for="txtToTime">To: </label>
-                <input id="txtToTime" type="text" data-bind="value: TimeTo, valueUpdate: 'afterkeydown'" />
+                <input id="txtToTime" type="text" data-bind="value: TimeTo, valueUpdate: 'afterkeydown', watermark: '12:00 PM'" />
             </div>
             <div>
                 <label for="txtPrepTime">Prep Time: </label>
-                <input id="txtPrepTime" type="text" data-bind="value: PrepTime, valueUpdate: 'afterkeydown'" />
+                <input id="txtPrepTime" type="text" data-bind="value: PrepTime, valueUpdate: 'afterkeydown', watermark: '30'" />
+                minutes
             </div>
         </section>
     </fieldset>
