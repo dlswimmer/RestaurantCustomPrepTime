@@ -57,7 +57,8 @@ function PrepTimes(data) {
         pattern: {
             message: "Please enter in the following format: 12:00 PM",
             params: "^(?:(?:([01]?\\d|2[0-3]):)?([0-5]?\\d) )?(AM|PM)$"
-        }
+        },
+        rateLimit: { timeout: 600, method: "notifyWhenChangesStop" }
     });
     self.TimeTo = ko.observable(data == null ? "" : data.TimeTo).extend({
         required: {
@@ -67,13 +68,16 @@ function PrepTimes(data) {
         pattern: {
             message: "Please enter in the following format: 12:00 PM",
             params: "^(?:(?:([01]?\\d|2[0-3]):)?([0-5]?\\d) )?(AM|PM)$"
-        }
+        },
+        rateLimit: { timeout: 600, method: "notifyWhenChangesStop" }
     });
     self.PrepTime = ko.observable(data == null ? "" : data.PrepTime).extend({
         required: {
             message: "*",
             params: true
-        }, min: 1
+        },
+        min: 1,
+        rateLimit: { timeout: 600, method: "notifyWhenChangesStop" }
     });
     self.isNew = ko.computed(function() {
         return self.Id() == null || self.Id() == 0;
