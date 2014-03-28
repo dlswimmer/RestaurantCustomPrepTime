@@ -6,8 +6,6 @@ using RestaurantCustomPrepTime.Business.Processes;
 using RestaurantCustomPrepTime.Controllers;
 using RestaurantCustomPrepTime.Models;
 using Rhino.Mocks;
-using Rhino.Mocks.Constraints;
-using DayOfWeek = RestaurantCustomPrepTime.Business.Entity.DayOfWeek;
 
 namespace RestaurantCustomPrepTime.Tests
 {
@@ -75,18 +73,18 @@ namespace RestaurantCustomPrepTime.Tests
             result.Add(new CustomPrepTime
             {
                 CustomPrepTimeId = 1,
-                TimeFrom = new DateTime(2014, 1, 1, 1, 0, 0),
-                TimeTo = new DateTime(2014, 1, 1, 2, 2, 0),
+                TimeFrom = new TimeSpan(1, 0, 0),
+                TimeTo = new TimeSpan(2, 0, 0),
                 PrepTime = 30,
-                PrepDays = new List<DayOfWeek> {new DayOfWeek {DayOfWeekId = 1, Day = DaysOfWeek.Tuesday}}
+                PrepDays = new List<DaysOfWeek> {DaysOfWeek.Tuesday}
             });
             result.Add(new CustomPrepTime
             {
                 CustomPrepTimeId = 2,
-                TimeFrom = new DateTime(2014, 1, 1, 5, 0, 0),
-                TimeTo = new DateTime(2014, 1, 1, 6, 0, 0),
+                TimeFrom = new TimeSpan(5, 0, 0),
+                TimeTo = new TimeSpan(6, 0, 0),
                 PrepTime = 30,
-                PrepDays = new List<DayOfWeek> { new DayOfWeek { DayOfWeekId = 1, Day = DaysOfWeek.Tuesday } }
+                PrepDays = new List<DaysOfWeek> { DaysOfWeek.Tuesday }
             });
 
             return result;
@@ -97,10 +95,10 @@ namespace RestaurantCustomPrepTime.Tests
             return new CustomPrepTime
             {
                 CustomPrepTimeId = 1,
-                TimeFrom = new DateTime(2014, 1, 1, 1, 0, 0),
-                TimeTo = new DateTime(2014, 1, 1, 2, 0, 0),
+                TimeFrom = new TimeSpan(1, 0, 0),
+                TimeTo = new TimeSpan(2, 0, 0),
                 PrepTime = 30,
-                PrepDays = new List<DayOfWeek> { new DayOfWeek { DayOfWeekId = 1, Day = DaysOfWeek.Tuesday } }
+                PrepDays = new List<DaysOfWeek> { DaysOfWeek.Tuesday }
             };
         }
     }

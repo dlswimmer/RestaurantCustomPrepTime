@@ -6,7 +6,6 @@ using RestaurantCustomPrepTime.Business.Context;
 using RestaurantCustomPrepTime.Business.Entity;
 using RestaurantCustomPrepTime.Business.Processes;
 using Rhino.Mocks;
-using DayOfWeek = RestaurantCustomPrepTime.Business.Entity.DayOfWeek;
 
 namespace RestaurantCustomPrepTime.Business.Tests
 {
@@ -38,10 +37,6 @@ namespace RestaurantCustomPrepTime.Business.Tests
             var access = MockRepository.GenerateMock<IRestaurantContextAccess>();
             factory.Expect(x => x.GetRestaurantAccess()).Return(access);
             access.Expect(x => x.Table<CustomPrepTime>()).Return(times.AsQueryable());
-            foreach (var day in toDelete.PrepDays)
-            {
-                access.Expect(x => x.Delete(day));
-            }
             access.Expect(x => x.Delete(toDelete));
             access.Expect(x => x.Save());
             var process = new CustomPrepTimeProcess(factory);
@@ -77,7 +72,6 @@ namespace RestaurantCustomPrepTime.Business.Tests
             var access = MockRepository.GenerateMock<IRestaurantContextAccess>();
             factory.Expect(x => x.GetRestaurantAccess()).Return(access);
             access.Expect(x => x.Table<CustomPrepTime>()).Return(times.AsQueryable());
-            access.Expect(x => x.Delete(toUpdate.PrepDays.First(d => d.Day == DaysOfWeek.Sunday)));
             access.Expect(x => x.Save());
             var process = new CustomPrepTimeProcess(factory);
 
@@ -86,7 +80,7 @@ namespace RestaurantCustomPrepTime.Business.Tests
             Assert.AreEqual(item.TimeTo, result.TimeTo);
             Assert.AreEqual(item.PrepTime, result.PrepTime);
             Assert.AreEqual(item.PrepDays.Count, result.PrepDays.Count);
-            Assert.IsTrue(item.PrepDays.All(x => result.PrepDays.Any(p => p.Day == x.Day)));
+            Assert.IsTrue(item.PrepDays.All(x => result.PrepDays.Any(p => p == x)));
             access.VerifyAllExpectations();
             factory.VerifyAllExpectations();
         }
@@ -110,7 +104,6 @@ namespace RestaurantCustomPrepTime.Business.Tests
         [TestMethod]
         public void TestAddStoresInDatabase()
         {
-            var times = GetTestListOfPrepTimes();
             var item = GetTestPrepTime();
             var factory = MockRepository.GenerateMock<IContextFactory>();
             var access = MockRepository.GenerateMock<IRestaurantContextAccess>();
@@ -124,31 +117,32 @@ namespace RestaurantCustomPrepTime.Business.Tests
             Assert.AreEqual(item.TimeTo, result.TimeTo);
             Assert.AreEqual(item.PrepTime, result.PrepTime);
             Assert.AreEqual(item.PrepDays.Count, result.PrepDays.Count);
-            Assert.IsTrue(item.PrepDays.All(x => result.PrepDays.Any(p => p.Day == x.Day)));
+            Assert.IsTrue(item.PrepDays.All(x => result.PrepDays.Any(p => p == x)));
             access.VerifyAllExpectations();
             factory.VerifyAllExpectations();
         }
 
         private List<CustomPrepTime> GetTestListOfPrepTimes()
         {
-            var result = new List<CustomPrepTime>();
-
-            result.Add(new CustomPrepTime
+            var result = new List<CustomPrepTime>
             {
-                CustomPrepTimeId = 1,
-                TimeFrom = new DateTime(2014, 1, 1, 1, 0, 0),
-                TimeTo = new DateTime(2014, 1, 1, 2, 2, 0),
-                PrepTime = 30,
-                PrepDays = new List<DayOfWeek> { new DayOfWeek { DayOfWeekId = 1, Day = DaysOfWeek.Tuesday }, new DayOfWeek { DayOfWeekId = 1, Day = DaysOfWeek.Sunday } }
-            });
-            result.Add(new CustomPrepTime
-            {
-                CustomPrepTimeId = 2,
-                TimeFrom = new DateTime(2014, 1, 1, 5, 0, 0),
-                TimeTo = new DateTime(2014, 1, 1, 6, 0, 0),
-                PrepTime = 30,
-                PrepDays = new List<DayOfWeek> { new DayOfWeek { DayOfWeekId = 2, Day = DaysOfWeek.Saturday } }
-            });
+                new CustomPrepTime
+                {
+                    CustomPrepTimeId = 1,
+                    TimeFrom = new TimeSpan(1, 0, 0),
+                    TimeTo = new TimeSpan(2, 0, 0),
+                    PrepTime = 30,
+                    PrepDays = new List<DaysOfWeek> {DaysOfWeek.Tuesday, DaysOfWeek.Sunday}
+                },
+                new CustomPrepTime
+                {
+                    CustomPrepTimeId = 2,
+                    TimeFrom = new TimeSpan(5, 0, 0),
+                    TimeTo = new TimeSpan(6, 0, 0),
+                    PrepTime = 30,
+                    PrepDays = new List<DaysOfWeek> {DaysOfWeek.Saturday}
+                }
+            };
 
             return result;
         }
@@ -158,10 +152,10 @@ namespace RestaurantCustomPrepTime.Business.Tests
             return new CustomPrepTime
             {
                 CustomPrepTimeId = 3,
-                TimeFrom = new DateTime(2014, 1, 1, 13, 0, 0),
-                TimeTo = new DateTime(2014, 1, 1, 15, 0, 0),
+                TimeFrom = new TimeSpan(13, 0, 0),
+                TimeTo = new TimeSpan(15, 0, 0),
                 PrepTime = 12,
-                PrepDays = new List<DayOfWeek> { new DayOfWeek { Day = DaysOfWeek.Tuesday }, new DayOfWeek { Day = DaysOfWeek.Friday } }
+                PrepDays = new List<DaysOfWeek> { DaysOfWeek.Tuesday, DaysOfWeek.Friday }
             };
         }
     }

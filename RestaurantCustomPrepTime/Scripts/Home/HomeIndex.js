@@ -16,6 +16,14 @@ $(document).ready(function () {
 var viewModel = ko.validatedObservable({
     prepTimes: ko.observableArray([]),
     selectedPrepTime: ko.validatedObservable(),
+    availableDays: [
+        { name: "Mon", value: "1" },
+        { name: "Tue", value: "2" },
+        { name: "Wed", value: "4" },
+        { name: "Thu", value: "8" },
+        { name: "Fri", value: "16" },
+        { name: "Sat", value: "32" },
+        { name: "Sun", value: "64" }],
     load: function () {
         var self = this;
         $.ajax({
@@ -39,16 +47,19 @@ var viewModel = ko.validatedObservable({
     }
 });
 
+function convert(daysInt) {
+    var strArr = new Array();
+    for (i in daysInt) {
+        var str = daysInt[i].toString();
+        strArr.push(str);
+    }
+    return strArr;
+}
+
 function PrepTimes(data) {
     var self = this;
     self.Id = ko.observable(data == null ? 0 : data.Id);
-    self.OnMonday = ko.observable(data == null ? false : data.OnMonday);
-    self.OnTuesday = ko.observable(data == null ? false : data.OnTuesday);
-    self.OnWednesday = ko.observable(data == null ? false : data.OnWednesday);
-    self.OnThursday = ko.observable(data == null ? false : data.OnThursday);
-    self.OnFriday = ko.observable(data == null ? false : data.OnFriday);
-    self.OnSaturday = ko.observable(data == null ? false : data.OnSaturday);
-    self.OnSunday = ko.observable(data == null ? false : data.OnSunday);
+    self.Days = ko.observableArray(data == null ? false : convert(data.Days));
     self.TimeFrom = ko.observable(data == null ? "" : data.TimeFrom).extend({
         required: {
             message: "*",
@@ -85,43 +96,34 @@ function PrepTimes(data) {
     self.times = ko.computed(function () {
         return self.TimeFrom() + " - " + self.TimeTo();
     });
-    self.days = ko.computed(function () {
-        var arr = [];
-        var current = [];
-        arr.push(current);
-        if (self.OnMonday()) {
-            current.push("Mon");
-        }
-        var addOrPush = function (isTrue, val) {
-            if (isTrue) {
-                current.push(val);
-            } else if (current.length > 0) {
-                current = [];
-                arr.push(current);
+    self.daysDisplay = ko.computed(function () {
+        var result = "";
+        var last = "";
+        var leng = 0;
+        var addOrPush = function (val, array, text) {
+            if ($.inArray(val, array) >= 0) {
+                last = text;
+                if (leng == 0) {
+                    if (result.length > 0) {
+                        result += ", ";
+                    }
+                    result += text;
+                }
+                leng++;
+            } else if (leng > 0) {
+                if (leng > 1) {
+                    result += " - " + last;
+                }
+                leng = 0;
+                last = "";
             }
         };
-        addOrPush(self.OnTuesday(), "Tue");
-        addOrPush(self.OnWednesday(), "Wed");
-        addOrPush(self.OnThursday(), "Thu");
-        addOrPush(self.OnFriday(), "Fri");
-        addOrPush(self.OnSaturday(), "Sat");
-        addOrPush(self.OnSunday(), "Sun");
 
-        var result = "";
-        for (var i = 0; i < arr.length; i++) {
-            var item = arr[i];
-            if (item.length == 0) {
-                break;
-            }
-            if (i > 0) {
-                result += ", ";
-            }
-            if (item.length > 1) {
-                result += item[0] + " - " + item[item.length - 1];
-            } else {
-                result += item[0];
-            }
+        for (i in viewModel().availableDays) {
+            var day = viewModel().availableDays[i];
+            addOrPush(day.value, self.Days(), day.name);
         }
+        addOrPush("null", self.Days(), "");
         return result;
     });
     self.deleteSelf = function () {
@@ -148,7 +150,7 @@ function PrepTimes(data) {
         if (!self.isValid()) {
             return;
         }
-        var item = ko.toJSON(self);
+        var item = self.clean();
         if (self.isNew()) {
             $.ajax({
                 type: "POST",
@@ -186,17 +188,21 @@ function PrepTimes(data) {
     self.copyValues = function (copyFrom) {
         self.copyFrom = copyFrom;
         self.Id(copyFrom.Id());
-        self.OnMonday(copyFrom.OnMonday());
-        self.OnTuesday(copyFrom.OnTuesday());
-        self.OnWednesday(copyFrom.OnWednesday());
-        self.OnThursday(copyFrom.OnThursday());
-        self.OnFriday(copyFrom.OnFriday());
-        self.OnSaturday(copyFrom.OnSaturday());
-        self.OnSunday(copyFrom.OnSunday());
+        self.Days(copyFrom.Days().slice());
         self.TimeFrom(copyFrom.TimeFrom());
         self.TimeTo(copyFrom.TimeTo());
         self.PrepTime(copyFrom.PrepTime());
     };
+    self.clean = function() {
+        var result = {
+            Id: self.Id(),
+            Days: self.Days().slice(),
+            TimeFrom: self.TimeFrom(),
+            TimeTo: self.TimeTo(),
+            PrepTime: self.PrepTime()
+        }
+        return ko.toJSON(result);
+    }
     self.closeForm = function () {
         $("#addEditDialog").dialog('close');
     };

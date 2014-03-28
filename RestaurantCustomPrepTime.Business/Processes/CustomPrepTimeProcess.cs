@@ -30,7 +30,7 @@ namespace RestaurantCustomPrepTime.Business.Processes
         {
             using (var context = _contextFactory.GetRestaurantAccess())
             {
-                return (from x in context.Table<CustomPrepTime>() select x).Include(x => x.PrepDays).ToList();
+                return (from x in context.Table<CustomPrepTime>() select x).ToList();
             }
         }
 
@@ -38,14 +38,10 @@ namespace RestaurantCustomPrepTime.Business.Processes
         {
             using (var context = _contextFactory.GetRestaurantAccess())
             {
-                var entity = context.Table<CustomPrepTime>().Include(x => x.PrepDays).FirstOrDefault(x => x.CustomPrepTimeId == id);
+                var entity = context.Table<CustomPrepTime>().FirstOrDefault(x => x.CustomPrepTimeId == id);
                 if (entity == null)
                 {
                     throw new EntityNotFoundException("CustomPrepTime", id);
-                }
-                foreach (var day in entity.PrepDays.ToList())
-                {
-                    context.Delete(day);
                 }
                 entity.PrepDays.Clear();
                 context.Delete(entity);
@@ -62,7 +58,7 @@ namespace RestaurantCustomPrepTime.Business.Processes
                     TimeFrom = item.TimeFrom,
                     TimeTo = item.TimeTo,
                     PrepTime = item.PrepTime,
-                    PrepDays = item.PrepDays.Select(x => new Entity.DayOfWeek {Day = x.Day}).ToList()
+                    PrepDays = item.PrepDays
                 };
                 context.Insert(entity);
                 context.Save();
@@ -74,7 +70,7 @@ namespace RestaurantCustomPrepTime.Business.Processes
         {
             using (var context = _contextFactory.GetRestaurantAccess())
             {
-                var entity = context.Table<CustomPrepTime>().Include(x => x.PrepDays).FirstOrDefault(x => x.CustomPrepTimeId == item.CustomPrepTimeId);
+                var entity = context.Table<CustomPrepTime>().FirstOrDefault(x => x.CustomPrepTimeId == item.CustomPrepTimeId);
                 if (entity == null)
                 {
                     throw new EntityNotFoundException("CustomPrepTime", item.CustomPrepTimeId);
@@ -82,14 +78,13 @@ namespace RestaurantCustomPrepTime.Business.Processes
                 entity.TimeFrom = item.TimeFrom;
                 entity.TimeTo = item.TimeTo;
                 entity.PrepTime = item.PrepTime;
-                foreach (var day in entity.PrepDays.Where(x => item.PrepDays.All(p => p.Day != x.Day)).ToList())
+                foreach (var day in entity.PrepDays.Where(x => item.PrepDays.All(p => p != x)).ToList())
                 {
-                    context.Delete(day);
                     entity.PrepDays.Remove(day);
                 }
-                foreach (var day in item.PrepDays.Where(x => entity.PrepDays.All(p => p.Day != x.Day)))
+                foreach (var day in item.PrepDays.Where(x => entity.PrepDays.All(p => p != x)))
                 {
-                    entity.PrepDays.Add(new Entity.DayOfWeek { Day = day.Day });
+                    entity.PrepDays.Add(day);
                 }
 
                 context.Save();

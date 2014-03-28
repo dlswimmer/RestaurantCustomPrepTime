@@ -18,7 +18,7 @@
     </thead>
     <tbody data-bind="foreach: prepTimes">
         <tr>
-            <td data-bind="text: days"></td>
+            <td data-bind="text: daysDisplay"></td>
             <td data-bind="text: times"></td>
             <td data-bind="text: PrepTime"></td>
             <td>
@@ -33,34 +33,10 @@
 
 <div id="addEditDialog" data-bind="with: selectedPrepTime" title="Add New Custom Prep Time">
     <fieldset>
-        <ol class="floating">
+        <ol class="floating" data-bind="foreach: $parent.availableDays">
             <li>
-                <input id="chkMonday" type="checkbox" data-bind="checked: OnMonday" value="Mon" />
-                <label for="chkMonday">Mon</label>
-            </li>
-            <li>
-                <input id="chkTuesday" type="checkbox" data-bind="checked: OnTuesday" value="Tue" />
-                <label for="chkTuesday">Tue</label>
-            </li>
-            <li>
-                <input id="chkWednesday" type="checkbox" data-bind="checked: OnWednesday" value="Wed" />
-                <label for="chkWednesday">Wed</label>
-            </li>
-            <li>
-                <input id="chkThursday" type="checkbox" data-bind="checked: OnThursday" value="Thu" />
-                <label for="chkThursday">Thu</label>
-            </li>
-            <li>
-                <input id="chkFriday" type="checkbox" data-bind="checked: OnFriday" value="Fri" />
-                <label for="chkFriday">Fri</label>
-            </li>
-            <li>
-                <input id="chkSaturday" type="checkbox" data-bind="checked: OnSaturday" value="Sat" />
-                <label for="chkSaturday">Sat</label>
-            </li>
-            <li>
-                <input id="chkSunday" type="checkbox" data-bind="checked: OnSunday" value="Sun" />
-                <label for="chkSunday">Sun</label>
+                <input type="checkbox" data-bind="checked: $parent.Days, value: value, attr: {'id': 'chkItem_' + name}" />
+                <label data-bind="text: name, attr: {'for': 'chkItem_' + name}"></label>
             </li>
         </ol>
         <section id="addEditFields" class="center clearfix">
