@@ -161,7 +161,7 @@ function PrepTimes(data) {
                 success: function (jsonData) {
                     var result = new PrepTimes(jsonData);
                     viewModel().prepTimes.push(result);
-                    $("#addEditDialog").dialog('close');
+                    self.closeForm();
                 },
                 error: function (err) {
                     alert(err.status + " : " + err.statusText);
@@ -177,7 +177,7 @@ function PrepTimes(data) {
                 success: function (jsonData) {
                     var result = new PrepTimes(jsonData);
                     self.copyFrom.copyValues(result);
-                    $("#addEditDialog").dialog('close');
+                    self.closeForm();
                 },
                 error: function (err) {
                     alert(err.status + " : " + err.statusText);
